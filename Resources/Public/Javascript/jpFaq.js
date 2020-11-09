@@ -189,7 +189,7 @@ var jpFaq = jpFaq || {};
             $(jpfaqQuestionHelpful).click(function (event) {
                 event.preventDefault();
                 $(this).closest(jpfaqQuestionHelpfulText).hide();
-                $(jpFaqThankYou).show();
+                $(this).parent().siblings(jpFaqThankYou).show();
 
                 var loadUri = $(this).attr('href') + jpfaqCommentPageEiD;
                 jpFaq.Main.ajaxPost(loadUri);
@@ -214,10 +214,12 @@ var jpFaq = jpFaq || {};
         questionIsNotHelpful: function () {
             $(jpfaqQuestionNotHelpful).click(function (event) {
                 event.preventDefault();
+                var currentForm = $(this).parent().siblings(jpfaqAddCommentForm);
+
                 $(this).closest(jpfaqQuestionHelpfulText).hide();
-                $(jpfaqAddCommentForm).slideDown('fast', function () {
-                    $(jpfaqAddCommentForm).show();
-                })
+                currentForm.slideDown('fast', function () {
+                    currentForm.show();
+                });
 
                 var loadUri = $(this).attr('href') + jpfaqCommentPageEiD;
                 jpFaq.Main.ajaxPost(loadUri);
