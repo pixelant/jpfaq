@@ -214,11 +214,14 @@ var jpFaq = jpFaq || {};
         questionIsNotHelpful: function () {
             $(jpfaqQuestionNotHelpful).click(function (event) {
                 event.preventDefault();
-                $(this).closest(jpfaqQuestionHelpfulText).hide();
-                $(jpfaqAddCommentForm).slideDown('fast', function () {
-                    $(jpfaqAddCommentForm).show();
-                })
+                var currentForm = $(this).parent().siblings(jpfaqAddCommentForm);
 
+                $(this).closest(jpfaqQuestionHelpfulText).hide();
+                currentForm.slideDown('fast', function () {
+                    currentForm.show();
+                });
+
+                console.log($(this).parent().siblings(jpfaqAddCommentForm));
                 var loadUri = $(this).attr('href') + jpfaqCommentPageEiD;
                 jpFaq.Main.ajaxPost(loadUri);
 
