@@ -79,9 +79,10 @@ class AjaxFeedbackController
     private function updateHelpful(string $questionUid, bool $helpful)
     {
         $questionUid = (int)$questionUid;
-        $question = $this->questionRepository->findByUid((int)$questionUid);
+        $question = $this->questionRepository->findByUid($questionUid);
         $questionHelpful = $question->getHelpful();
         $questionNotHelpful = $question->getNothelpful();
+        $queryBuilder = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_jpfaq_domain_model_question');
         $userClickedHelpfulness = $this->frontendAuthentication->getKey('ses', 'tx_jpfaq_helpfulness_' . $questionUid);
         $isHelpful = false;
 
@@ -89,34 +90,70 @@ class AjaxFeedbackController
         if (isset($userClickedHelpfulness)) {
             // User changes helpful to nothelpful
             if ($userClickedHelpfulness & !$helpful) {
-                $question->setNothelpful($questionNotHelpful + 1);
+                $queryBuilder
+                    ->update('tx_jpfaq_domain_model_question')
+                    ->where(
+                        $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($questionUid))
+                    )
+                    ->set('nothelpful', $questionNotHelpful + 1)
+                    ->execute();
                 if ($questionHelpful > 0) {
-                    $question->setHelpful($questionHelpful - 1);
+                    $queryBuilder
+                        ->update('tx_jpfaq_domain_model_question')
+                        ->where(
+                            $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($questionUid))
+                        )
+                        ->set('nothelpful', $questionNotHelpful - 1)
+                        ->execute();
                 }
                 $isHelpful = false;
             } elseif (!$userClickedHelpfulness & $helpful) {
                 // User changes nothelpful to helpful
-                $question->setHelpful($questionHelpful + 1);
+                $queryBuilder
+                    ->update('tx_jpfaq_domain_model_question')
+                    ->where(
+                        $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($questionUid))
+                    )
+                    ->set('helpful', $questionNotHelpful + 1)
+                    ->execute();
                 if ($questionNotHelpful > 0) {
-                    $question->setNothelpful($questionNotHelpful - 1);
+                    $queryBuilder
+                        ->update('tx_jpfaq_domain_model_question')
+                        ->where(
+                            $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($questionUid))
+                        )
+                        ->set('helpful', $questionNotHelpful - 1)
+                        ->execute();
                 }
                 $isHelpful = true;
             }
         } else {
             // User has not clicked helpful or nothelpful for this question this session
             if ($helpful) {
-                $question->setHelpful($questionHelpful + 1);
+                $queryBuilder
+                    ->update('tx_jpfaq_domain_model_question')
+                    ->where(
+                        $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($questionUid))
+                    )
+                    ->set('helpful', $questionNotHelpful + 1)
+                    ->execute();
                 $isHelpful = true;
             } else {
-                $question->setNothelpful($questionNotHelpful + 1);
+                $queryBuilder
+                    ->update('tx_jpfaq_domain_model_question')
+                    ->where(
+                        $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($questionUid))
+                    )
+                    ->set('nothelpful', $questionNotHelpful + 1)
+                    ->execute();
                 $isHelpful = false;
             }
         }
 
-        $this->questionRepository->update($question);
-
         // Store user interaction on helpfulness in session
         $this->frontendAuthentication->setKey('ses', 'tx_jpfaq_helpfulness_' . $questionUid, $helpful);
+        $this->frontendAuthentication->storeSessionData();
+
         return $isHelpful;
     }
 }
