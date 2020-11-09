@@ -221,7 +221,6 @@ var jpFaq = jpFaq || {};
                     currentForm.show();
                 });
 
-                console.log($(this).parent().siblings(jpfaqAddCommentForm));
                 var loadUri = $(this).attr('href') + jpfaqCommentPageEiD;
                 jpFaq.Main.ajaxPost(loadUri);
 
