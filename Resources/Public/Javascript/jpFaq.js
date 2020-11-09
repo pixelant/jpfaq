@@ -189,7 +189,7 @@ var jpFaq = jpFaq || {};
             $(jpfaqQuestionHelpful).click(function (event) {
                 event.preventDefault();
                 $(this).closest(jpfaqQuestionHelpfulText).hide();
-                $(jpFaqThankYou).show();
+                $(this).parent().siblings(jpFaqThankYou).show();
 
                 var loadUri = $(this).attr('href') + jpfaqCommentPageEiD;
                 jpFaq.Main.ajaxPost(loadUri);
