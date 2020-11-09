@@ -93,7 +93,7 @@ class CategorycommentController extends \TYPO3\CMS\Extbase\Mvc\Controller\Action
 
         $categories = [];
         $categoryNames = '';
-        if ($catUids[0] !== 'no categories') {
+        if ($catUids[0] !== '') {
             foreach ($catUids as $catUid) {
                 $catUid = intval($catUid);
 
