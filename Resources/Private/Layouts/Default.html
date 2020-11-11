@@ -1,4 +1,12 @@
-
-<div class="tx-jpfaq" id="tx-jpfaq{currentUid}" itemscope itemtype="http://schema.org/FAQPage">
-	<f:render section="main" />
-</div>
+<f:if condition="{categoryDetail} == 1">
+	<f:then>
+		<div class="tx-jpfaq tx-jpfaq-singleCat" id="tx-jpfaq{currentUid}" itemscope itemtype="http://schema.org/FAQPage">
+			<f:render section="main" />
+		</div>
+	</f:then>
+	<f:else>
+		<div class="tx-jpfaq tx-jpfaq-list" id="tx-jpfaq{currentUid}" itemscope itemtype="http://schema.org/FAQPage">
+			<f:render section="main" />
+		</div>
+	</f:else>
+</f:if>

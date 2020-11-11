@@ -137,7 +137,8 @@ class QuestionController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
             'gtag' => $gtag,
             'showCategoriesCommentForm' => (int)$this->settings['flexform']['showCategoriesCommentForm'],
             'restrictToCategories' => $restrictToCategories,
-            'categories' => $categories
+            'categories' => $categories,
+            'questionDetail' => 1
         ));
     }
 
