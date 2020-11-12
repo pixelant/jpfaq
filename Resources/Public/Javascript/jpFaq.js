@@ -351,8 +351,6 @@ var jpFaq = jpFaq || {};
                 var form = $(jpfaqCatCommentForm + questionNumber);
                 var formValidated = jpFaq.Main.validateForm(form);
 
-                $(jpfaqQuestionHelpfulText).hide();
-
                 if (formValidated) {
                     jpFaq.Main.postComment(event, categoryContainer, form);
                 }
@@ -457,7 +455,7 @@ var jpFaq = jpFaq || {};
                     }
                     $(jpfaqSpinner).remove();
 
-                    $(jpfaqAddThankYouMessage).show();
+                    $(commentContainer).children(jpFaqThankYou).show();
                 },
 
                 error: function (xhr, thrownError) {
