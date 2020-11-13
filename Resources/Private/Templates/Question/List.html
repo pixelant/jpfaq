@@ -16,6 +16,10 @@
                     <f:render partial="Question/Question" arguments="{_all}"/>
                 </f:for>
             </ul>
+
+            <f:if condition="{showCategoriesCommentForm}">
+                <f:render partial="Categorycomment/LoadCommentFormLink" arguments="{currentUid: currentUid, restrictToCategories: restrictToCategories}"/>
+            </f:if>
         </f:then>
         <f:else>
             <f:if condition="({settings.flexform.answerView} == 'collapse')">
@@ -67,10 +71,6 @@
                 </f:else>
             </f:if>
         </f:else>
-    </f:if>
-
-    <f:if condition="{showCategoriesCommentForm}">
-        <f:render partial="Categorycomment/LoadCommentFormLink" arguments="{currentUid: currentUid, restrictToCategories: restrictToCategories}"/>
     </f:if>
 </f:section>
 </html>
