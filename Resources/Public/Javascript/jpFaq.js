@@ -455,7 +455,7 @@ var jpFaq = jpFaq || {};
                     }
                     $(jpfaqSpinner).remove();
 
-                    $(commentContainer).children(jpFaqThankYou).show();
+                    $(commentContainer).children(jpfaqAddThankYouMessage).show();
                 },
 
                 error: function (xhr, thrownError) {
