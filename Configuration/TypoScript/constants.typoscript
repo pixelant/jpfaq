@@ -12,4 +12,9 @@ plugin.tx_jpfaq_faq {
         # cat=plugin.tx_jpfaq_faq//a; type=string; label=Default storage PID
         storagePid =
     }
+
+    settings{
+        singleViewPid =
+        categorySingleViewPid =
+    }
 }

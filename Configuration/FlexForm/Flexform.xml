@@ -10,26 +10,6 @@
                 </TCEforms>
                 <type>array</type>
                 <el>
-                    <settings.flexform.showSearch>
-                        <TCEforms>
-                            <exclude>1</exclude>
-                            <label>LLL:EXT:jpfaq/Resources/Private/Language/locallang_db.xml:tx_jpfaq_flexform.showSearch</label>
-                            <config>
-                                <type>check</type>
-                                <default>0</default>
-                            </config>
-                        </TCEforms>
-                    </settings.flexform.showSearch>
-                    <settings.flexform.showNumberOfResults>
-                        <TCEforms>
-                            <exclude>0</exclude>
-                            <label>LLL:EXT:jpfaq/Resources/Private/Language/locallang_db.xml:tx_jpfaq_flexform.showResultsNumber</label>
-                            <config>
-                                <type>check</type>
-                                <default>1</default>
-                            </config>
-                        </TCEforms>
-                    </settings.flexform.showNumberOfResults>
                     <settings.flexform.showQuestionCommentForm>
                         <TCEforms>
                             <exclude>1</exclude>
@@ -40,17 +20,26 @@
                             </config>
                         </TCEforms>
                     </settings.flexform.showQuestionCommentForm>
-                    <settings.flexform.showCategoriesCommentForm>
+                    <settings.flexform.answerView>
                         <TCEforms>
-                            <exclude>1</exclude>
-                            <label>LLL:EXT:jpfaq/Resources/Private/Language/locallang_db.xml:tx_jpfaq_flexform.showCategoriesCommentForm</label>
+                            <label>LLL:EXT:jpfaq/Resources/Private/Language/locallang_db.xml:tx_jpfaq_flexform.answerView</label>
                             <config>
-                                <type>check</type>
-                                <default>1</default>
+                                <type>select</type>
+                                <renderType>selectSingle</renderType>
+                                <items>
+                                    <numIndex index="0">
+                                        <numIndex index="0">LLL:EXT:jpfaq/Resources/Private/Language/locallang_db.xml:tx_jpfaq_flexform.answerCollapsible</numIndex>
+                                        <numIndex index="1">collapse</numIndex>
+                                    </numIndex>
+                                    <numIndex index="1">
+                                        <numIndex index="0">LLL:EXT:jpfaq/Resources/Private/Language/locallang_db.xml:tx_jpfaq_flexform.answerSingleView</numIndex>
+                                        <numIndex index="1">singleview</numIndex>
+                                    </numIndex>
+                                </items>
                             </config>
                         </TCEforms>
-                    </settings.flexform.showCategoriesCommentForm>
-                    <settings.flexform.selectCategory>
+                    </settings.flexform.answerView>
+                    <settings.flexform.selectedCategory>
                         <TCEforms>
                             <exclude>1</exclude>
                             <label>LLL:EXT:jpfaq/Resources/Private/Language/locallang_db.xml:tx_jpfaq_flexform.selectCategory</label>
@@ -64,7 +53,7 @@
                                 <maxitems>100</maxitems>
                             </config>
                         </TCEforms>
-                    </settings.flexform.selectCategory>
+                    </settings.flexform.selectedCategory>
                 </el>
             </ROOT>
         </main>

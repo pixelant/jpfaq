@@ -42,8 +42,8 @@ class QuestionController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
     {
         # Avoid code injection
         $this->settings['questions']['categories'] = [];
-        if ($this->settings['flexform']['selectCategory']) {
-            $categories = explode(',', $this->settings['flexform']['selectCategory']);
+        if ($this->settings['flexform']['selectedCategory']) {
+            $categories = explode(',', $this->settings['flexform']['selectedCategory']);
             foreach ($categories as $category) {
                 $this->settings['questions']['categories'][] = (int)$category;
             }
@@ -53,14 +53,32 @@ class QuestionController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
     /**
      * action list
      *
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException
-     *
+     * @param Question|null $question
+     * @param string $selectedCategory
+     * @param int $categoryDetail
+     * @param string $singleViewPid
+     * @param array $gtag
      * @return void
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
+     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException
      */
-    public function listAction()
+    public function listAction(Question $question = null, string $selectedCategory = '', int $categoryDetail = 0, string $singleViewPid = '0', array $gtag = [])
     {
-        $restrictToCategories = $this->settings['questions']['categories'];
-        $excludeAlreadyDisplayedQuestions = intval($this->settings['excludeAlreadyDisplayedQuestions']);
+
+        if ($question !== null) {
+            $this->forward('detail', null, null, ['question' => $question]);
+        }
+
+        if ($this->settings['singleViewPid']) {
+            $singleViewPid = $this->settings['singleViewPid'];
+        }
+
+        if ($this->settings['gtag']) {
+            $gtag = $this->settings['gtag'];
+        }
+
+        $restrictToCategories = ($selectedCategory) ? [(int)$selectedCategory] : $this->settings['questions']['categories'];
+        $excludeAlreadyDisplayedQuestions = (int)$this->settings['excludeAlreadyDisplayedQuestions'];
         $questions = $this->questionRepository->findQuestionsWithConstraints($restrictToCategories, $excludeAlreadyDisplayedQuestions);
 
         $categories = [];
@@ -69,53 +87,72 @@ class QuestionController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
         }
 
         if (!$restrictToCategories) {
-            $restrictToCategories = ['no categories'];
+            $restrictToCategories = [];
         }
 
         $currentUid = $this->getCurrentUid();
 
         $this->view->assignMultiple(array(
-            'showSearchForm' => intval($this->settings['flexform']['showSearch']),
-            'showNumberOfResults' => intval($this->settings['flexform']['showNumberOfResults']),
-            'showQuestionCommentForm' => intval($this->settings['flexform']['showQuestionCommentForm']),
-            'showCategoriesCommentForm' => intval($this->settings['flexform']['showCategoriesCommentForm']),
+            'showSearchForm' => (int)$this->settings['flexform']['showSearch'],
+            'showNumberOfResults' => (int)$this->settings['flexform']['showNumberOfResults'],
+            'showQuestionCommentForm' => (int)$this->settings['flexform']['showQuestionCommentForm'],
+            'showCategoriesCommentForm' => (int)$this->settings['flexform']['showCategoriesCommentForm'],
             'categories' => $categories,
             'restrictToCategories' => $restrictToCategories,
             'currentUid' => $currentUid,
-            'gtag' => $this->settings['gtag'],
+            'categoryDetail' => $categoryDetail,
+            'singleViewPid' => (int)$singleViewPid,
+            'gtag' => $gtag,
             'questions' => $questions
         ));
     }
 
     /**
-     * Action helpfulness
+     * action detail
      *
      * @param Question $question
-     * @param bool $helpful
-     * @param int $pluginUid
+     * @param array $gtag
      *
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
-     *
-     * @return void|bool
+     * @return void
      */
-    public function helpfulnessAction(Question $question, bool $helpful, int $pluginUid)
+    public function detailAction(Question $question, array $gtag)
     {
         $currentUid = $this->getCurrentUid();
 
-        if ($currentUid == $pluginUid) {
-            $this->updateHelpful($question, $helpful);
+        $restrictToCategories = $this->settings['questions']['categories'];
 
-            if (!$helpful) {
-                // Show comment form
-                $this->forward('comment', 'Questioncomment', null);
-            }
-        } else {
-            # Do not render helpfulness view
-            # When multiple plugins on a page we want action for the one who called it
-            return false;
+        $categories = [];
+        foreach ($restrictToCategories as $uid) {
+            $categories[] = $this->categoryRepository->findByUid($uid);
         }
+
+        if (!$restrictToCategories) {
+            $restrictToCategories = [''];
+        }
+
+        $this->view->assignMultiple(array(
+            'question' => $question,
+            'showQuestionCommentForm' => (int)$this->settings['flexform']['showQuestionCommentForm'],
+            'currentUid' => $currentUid,
+            'gtag' => $gtag,
+            'restrictToCategories' => $restrictToCategories,
+            'categories' => $categories,
+            'questionDetail' => 1
+        ));
+    }
+
+    /**
+     * action categoryDetail
+     *
+     * @param string $selectedCategory
+     * @param array $gtag
+     * @param int $categoryDetail
+     * @param string $singleViewPid
+     * @return void
+     */
+    public function categoryDetailAction(string $selectedCategory, array $gtag, int $categoryDetail = 0, string $singleViewPid = '0'){
+        $this->forward('list', null, null,
+            ['selectedCategory' => $selectedCategory, 'categoryDetail' => $categoryDetail, 'singleViewPid' => $singleViewPid, 'gtag' => $gtag]);
     }
 
     /**
@@ -131,51 +168,4 @@ class QuestionController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
         return $currentUid;
     }
 
-    /**
-     * Update helpful or nothelpful of a question in db and session
-     *
-     * @param Question $question
-     * @param bool $helpful
-     *
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
-     *
-     * @return void
-     */
-    private function updateHelpful(Question $question, bool $helpful)
-    {
-        $questionUid = $question->getUid();
-        $questionHelpful = $question->getHelpful();
-        $questionNotHelpful = $question->getNothelpful();
-        $userClickedHelpfulness = $GLOBALS['TSFE']->fe_user->getKey('ses', $questionUid);
-
-        // User already clicked helpful for this question this session
-        if (isset($userClickedHelpfulness)) {
-            // User changes helpful to nothelpful
-            if ($userClickedHelpfulness & !$helpful) {
-                $question->setNothelpful($questionNotHelpful + 1);
-                if ($questionHelpful > 0) {
-                    $question->setHelpful($questionHelpful - 1);
-                }
-            } elseif (!$userClickedHelpfulness & $helpful) {
-                // User changes nothelpful to helpful
-                $question->setHelpful($questionHelpful + 1);
-                if ($questionNotHelpful > 0) {
-                    $question->setNothelpful($questionNotHelpful - 1);
-                }
-            }
-        } else {
-            // User has not clicked helpful or nothelpful for this question this session
-            if ($helpful) {
-                $question->setHelpful($questionHelpful + 1);
-            } else {
-                $question->setNothelpful($questionNotHelpful + 1);
-            }
-        }
-
-        $this->questionRepository->update($question);
-
-        // Store user interaction on helpfulness in session
-        $GLOBALS['TSFE']->fe_user->setKey('ses', $questionUid, $helpful);
-    }
 }
