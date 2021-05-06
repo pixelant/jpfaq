@@ -64,9 +64,8 @@ class QuestionController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
      */
     public function listAction(Question $question = null, string $selectedCategory = '', int $categoryDetail = 0, string $singleViewPid = '0', array $gtag = [])
     {
-
         if ($question !== null) {
-            $this->forward('detail', null, null, ['question' => $question]);
+            $this->forward('detail', null, null, ['question' => $question, 'showCommentForm' => (int)$this->settings['flexform']['showQuestionCommentForm']]);
         }
 
         if ($this->settings['singleViewPid']) {
@@ -112,10 +111,10 @@ class QuestionController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
      *
      * @param Question $question
      * @param array $gtag
-     *
+     * @param int $showCommentForm
      * @return void
      */
-    public function detailAction(Question $question, array $gtag)
+    public function detailAction(Question $question, array $gtag, int $showCommentForm = 0)
     {
         $currentUid = $this->getCurrentUid();
 
@@ -132,7 +131,7 @@ class QuestionController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
 
         $this->view->assignMultiple(array(
             'question' => $question,
-            'showQuestionCommentForm' => (int)$this->settings['flexform']['showQuestionCommentForm'],
+            'showQuestionCommentForm' => $showCommentForm,
             'currentUid' => $currentUid,
             'gtag' => $gtag,
             'restrictToCategories' => $restrictToCategories,
